@@ -6,8 +6,8 @@ from llama_index.embeddings.ollama import OllamaEmbedding
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from .config import (
-    DEFAULT_PHRASES_RESOURCE,
-    DEFAULT_SENTENCES_RESOURCE,
+    BUILTIN_DEFAULT_PHRASES_RESOURCE,
+    BUILTIN_DEFAULT_SENTENCES_RESOURCE,
     PromptGuardConfig,
 )
 from .guards.judge_guard import LlmJudgeGuard
@@ -43,7 +43,7 @@ class GuardPipeline:
     def _build_tfidf_guard(self) -> TfIdfGuard:
         phrases = self._load_lines(
             self._config.phrases_path,
-            default_resource=DEFAULT_PHRASES_RESOURCE,
+            default_resource=BUILTIN_DEFAULT_PHRASES_RESOURCE,
         )
         vectorizer = TfidfVectorizer(ngram_range=self._config.tfidf_ngram_range)
         phrase_matrix = vectorizer.fit_transform(phrases)
@@ -57,7 +57,7 @@ class GuardPipeline:
     def _build_rag_guard(self) -> RagGuard:
         lines = self._load_lines(
             self._config.sentences_path,
-            default_resource=DEFAULT_SENTENCES_RESOURCE,
+            default_resource=BUILTIN_DEFAULT_SENTENCES_RESOURCE,
         )
         docs = [Document(text=line) for line in lines]
         embed_kwargs = {"model_name": self._config.embed_model_name}
