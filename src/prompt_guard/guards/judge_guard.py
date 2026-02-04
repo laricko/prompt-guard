@@ -2,22 +2,26 @@ import json
 
 from llama_index.llms.ollama import Ollama
 
-from protocols import GuardEvidence, GuardResult
+from ..protocols import GuardEvidence, GuardResult
 
 
-class L2JudgeGuard:
+class LlmJudgeGuard:
     def __init__(
         self,
         *,
         model_name: str = "smollm2",
         temperature: float = 0.0,
         max_tokens: int = 256,
+        base_url: str | None = None,
     ) -> None:
-        self._llm = Ollama(
-            model=model_name,
-            temperature=temperature,
-            additional_kwargs={"num_predict": max_tokens},
-        )
+        llm_kwargs = {
+            "model": model_name,
+            "temperature": temperature,
+            "additional_kwargs": {"num_predict": max_tokens},
+        }
+        if base_url:
+            llm_kwargs["base_url"] = base_url
+        self._llm = Ollama(**llm_kwargs)
 
     async def check(self, prompt: str) -> GuardResult:
         response = await self._llm.acomplete(self._build_prompt(prompt))

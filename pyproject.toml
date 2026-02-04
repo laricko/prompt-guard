@@ -5,7 +5,6 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "fastapi[standard]>=0.128.0",
     "llama-index>=0.14.13",
     "llama-index-embeddings-ollama>=0.8.6",
     "llama-index-llms-ollama>=0.9.1",

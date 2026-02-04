@@ -1,19 +1,23 @@
-from pathlib import Path
-
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from protocols import GuardEvidence, GuardResult
+from ..protocols import GuardEvidence, GuardResult
 
 
 class TfIdfGuard:
-    def __init__(self, phrase_db: str, *, top_k: int = 5) -> None:
-        raw_lines = Path(phrase_db).read_text(encoding="utf-8").splitlines()
-        self._phrases = [line.strip() for line in raw_lines if line.strip()]
+    def __init__(
+        self,
+        phrases: list[str],
+        vectorizer: TfidfVectorizer,
+        phrase_matrix,
+        *,
+        top_k: int = 5,
+    ) -> None:
+        self._phrases = phrases
         self._top_k = top_k
 
-        self._vectorizer = TfidfVectorizer(ngram_range=(1, 3))
-        self._phrase_matrix = self._vectorizer.fit_transform(self._phrases)
+        self._vectorizer = vectorizer
+        self._phrase_matrix = phrase_matrix
 
     async def check(self, prompt: str) -> GuardResult:
         vec = self._vectorizer.transform([prompt])
