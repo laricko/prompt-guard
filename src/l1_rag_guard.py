@@ -2,14 +2,8 @@ from pathlib import Path
 
 from llama_index.core import Document, VectorStoreIndex
 from llama_index.embeddings.ollama import OllamaEmbedding
-from pydantic import BaseModel
 
-from protocols import GuardResult
-
-
-class RagMatch(BaseModel):
-    text: str
-    score: float
+from protocols import GuardEvidence, GuardResult
 
 
 class RagGuard:
@@ -33,7 +27,7 @@ class RagGuard:
         )
         self._retriever = self._index.as_retriever(similarity_top_k=self._top_k)
 
-    async def check(self, prompt: str) -> GuardResult[list[RagMatch]]:
+    async def check(self, prompt: str) -> GuardResult:
         nodes = self._retriever.retrieve(prompt)
 
         matches = self._build_matches(nodes)
@@ -41,8 +35,8 @@ class RagGuard:
 
         return GuardResult(score=score, evidence=matches)
 
-    def _build_matches(self, nodes) -> list[RagMatch]:
-        matches: list[RagMatch] = []
+    def _build_matches(self, nodes) -> list[GuardEvidence]:
+        matches: list[GuardEvidence] = []
 
         for item in nodes:
             score = float(item.score or 0.0)
@@ -50,6 +44,6 @@ class RagGuard:
                 continue
 
             text = item.node.get_content()
-            matches.append(RagMatch(text=text, score=score))
+            matches.append(GuardEvidence(kind="rag", score=score, detail=text))
 
         return matches[: self._top_k]

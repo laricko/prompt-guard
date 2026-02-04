@@ -1,14 +1,8 @@
 import json
 
 from llama_index.llms.ollama import Ollama
-from pydantic import BaseModel
 
-from protocols import GuardResult
-
-
-class L2JudgeEvidence(BaseModel):
-    score: float
-    rationale: str
+from protocols import GuardEvidence, GuardResult
 
 
 class L2JudgeGuard:
@@ -25,7 +19,7 @@ class L2JudgeGuard:
             additional_kwargs={"num_predict": max_tokens},
         )
 
-    async def check(self, prompt: str) -> GuardResult[list[L2JudgeEvidence]]:
+    async def check(self, prompt: str) -> GuardResult:
         response = await self._llm.acomplete(self._build_prompt(prompt))
         evidence = self._parse_response(response.text)
         score = evidence.score
@@ -42,12 +36,16 @@ class L2JudgeGuard:
             f"USER_PROMPT:\n{prompt}"
         )
 
-    def _parse_response(self, text: str) -> L2JudgeEvidence:
+    def _parse_response(self, text: str) -> GuardEvidence:
         try:
             data = json.loads(text)
-            return L2JudgeEvidence(score=data["score"], rationale=data["rationale"])
+            return GuardEvidence(
+                kind="judge",
+                score=float(data["score"]),
+                detail=str(data["rationale"]),
+            )
         except (ValueError, TypeError, json.JSONDecodeError):
             pass
 
         fallback = text.strip() or "Unparseable model response."
-        return L2JudgeEvidence(score=0.0, rationale=fallback[:200])
+        return GuardEvidence(kind="judge", score=0.0, detail=fallback[:200])

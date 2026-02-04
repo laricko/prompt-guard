@@ -1,15 +1,9 @@
 from pathlib import Path
 
-from pydantic import BaseModel
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from protocols import GuardResult
-
-
-class TfIdfMatch(BaseModel):
-    phrase: str
-    score: float
+from protocols import GuardEvidence, GuardResult
 
 
 class TfIdfGuard:
@@ -21,7 +15,7 @@ class TfIdfGuard:
         self._vectorizer = TfidfVectorizer(ngram_range=(1, 3))
         self._phrase_matrix = self._vectorizer.fit_transform(self._phrases)
 
-    async def check(self, prompt: str) -> GuardResult[list[TfIdfMatch]]:
+    async def check(self, prompt: str) -> GuardResult:
         vec = self._vectorizer.transform([prompt])
         sims = cosine_similarity(vec, self._phrase_matrix).ravel()
 
@@ -30,12 +24,12 @@ class TfIdfGuard:
 
         return GuardResult(score=score, evidence=matches)
 
-    def _build_matches(self, sims) -> list[TfIdfMatch]:
+    def _build_matches(self, sims) -> list[GuardEvidence]:
         indexed_scores = list(enumerate(sims))
 
         indexed_scores.sort(key=lambda x: (-float(x[1]), x[0]))
 
-        matches: list[TfIdfMatch] = []
+        matches: list[GuardEvidence] = []
         for idx, sim in indexed_scores[: self._top_k]:
             score = float(sim)
             if score <= 0.0:
@@ -43,10 +37,7 @@ class TfIdfGuard:
 
             phrase = self._phrases[idx]
             matches.append(
-                TfIdfMatch(
-                    phrase=phrase,
-                    score=score,
-                )
+                GuardEvidence(kind="tfidf", score=score, detail=phrase)
             )
 
         return matches
