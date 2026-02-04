@@ -1,4 +1,4 @@
-from llama_index.core import BaseRetriever
+from llama_index.core.retrievers import BaseRetriever
 
 from ..protocols import GuardEvidence, GuardResult
 
