@@ -1,0 +1,18 @@
+[project]
+name = "prompt-guard"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.128.0",
+    "scikit-learn>=1.8.0",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.1",
+]
+
+[tool.mypy]
+disable_error_code = ["import-untyped"]

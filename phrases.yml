@@ -1,0 +1,30 @@
+prompt_injection:
+  - "ignore instructions"
+  - "previous instructions"
+  - "system prompt"
+  - "reveal system"
+  - "hidden instructions"
+  - "developer mode"
+  - "bypass rules"
+  - "override system"
+  - "forget instructions"
+
+data_exfiltration:
+  - "api key"
+  - "access token"
+  - "private key"
+  - "secret key"
+  - "env vars"
+  - "environment variables"
+  - "/etc/passwd"
+  - "dump data"
+  - "show secrets"
+
+tool_misuse:
+  - "run command"
+  - "execute shell"
+  - "shell command"
+  - "curl http"
+  - "wget http"
+  - "pip install"
+  - "apt install"
