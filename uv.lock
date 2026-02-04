@@ -917,6 +917,19 @@ wheels = [
 ]
 
 [[package]]
+name = "llama-index-llms-ollama"
+version = "0.9.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "llama-index-core" },
+    { name = "ollama" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c1/42/866e43f86ebe6c8ae0c3a2a473642f1438d0f7e006188a998c3ef4e5e357/llama_index_llms_ollama-0.9.1.tar.gz", hash = "sha256:d5885ed65ae2e2bc74ba9e3ffd3a5bcd7c5341ef0670e3d9fe200880fc19f9a6", size = 9077, upload-time = "2025-12-19T03:24:46.466Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/be/cd/aa2499dc38c1cc513cab56f9a74e5526d1a97717f35a62295fda0d363bf6/llama_index_llms_ollama-0.9.1-py3-none-any.whl", hash = "sha256:da6469be951605841f7e33ce1bbb5b72c65de0f084b250e7f78aacac84379d5f", size = 8721, upload-time = "2025-12-19T03:24:47.438Z" },
+]
+
+[[package]]
 name = "llama-index-llms-openai"
 version = "0.6.17"
 source = { registry = "https://pypi.org/simple" }
@@ -1444,6 +1457,7 @@ dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "llama-index" },
     { name = "llama-index-embeddings-ollama" },
+    { name = "llama-index-llms-ollama" },
     { name = "scikit-learn" },
 ]
 
@@ -1457,6 +1471,7 @@ requires-dist = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.128.0" },
     { name = "llama-index", specifier = ">=0.14.13" },
     { name = "llama-index-embeddings-ollama", specifier = ">=0.8.6" },
+    { name = "llama-index-llms-ollama", specifier = ">=0.9.1" },
     { name = "scikit-learn", specifier = ">=1.8.0" },
 ]
 
