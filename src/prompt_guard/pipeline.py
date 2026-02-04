@@ -11,32 +11,22 @@ from .config import PromptGuardConfig
 from .guards.judge_guard import LlmJudgeGuard
 from .guards.rag_guard import RagGuard
 from .guards.tfidf_guard import TfIdfGuard
-from .protocols import Guard, GuardEvidence, GuardResult
+from .protocols import Guard
 
 
 class GuardPipeline:
     def __init__(self, config: PromptGuardConfig) -> None:
         self._config = config
-        self._guards: list[Guard] | None = None
-        self._limits: dict[str, float] | None = None
+        self._guards = self._build_guards()
 
-    async def check(self, prompt: str) -> GuardResult:
-        guards = self._get_guards()
-        evidence: list[GuardEvidence] = []
-        score = 0.0
+    async def check(self, prompt: str):
+        results = []
 
-        for guard in guards:
+        for guard in self._guards:
             result = await guard.check(prompt)
-            evidence.extend(result.evidence)
-            score = max(score, result.score)
+            results.append(result)
 
-        return GuardResult(score=score, evidence=evidence)
-
-    def _get_guards(self) -> list[Guard]:
-        if self._guards is None:
-            self._validate_paths()
-            self._guards = self._build_guards()
-        return self._guards
+        return results
 
     def _build_guards(self) -> list[Guard]:
         guards: list[Guard] = []
@@ -49,7 +39,7 @@ class GuardPipeline:
         return guards
 
     def _build_tfidf_guard(self) -> TfIdfGuard:
-        phrases = self._load_lines(self._config.phrases_path, label="phrases_path")
+        phrases = self._load_lines(self._config.phrases_path)
         vectorizer = TfidfVectorizer(ngram_range=self._config.tfidf_ngram_range)
         phrase_matrix = vectorizer.fit_transform(phrases)
         return TfIdfGuard(
@@ -60,7 +50,7 @@ class GuardPipeline:
         )
 
     def _build_rag_guard(self) -> RagGuard:
-        lines = self._load_lines(self._config.sentences_path, label="sentences_path")
+        lines = self._load_lines(self._config.sentences_path)
         docs = [Document(text=line) for line in lines]
         embed_kwargs = {"model_name": self._config.embed_model_name}
         if self._config.base_url:
@@ -78,26 +68,10 @@ class GuardPipeline:
             base_url=self._config.base_url,
         )
 
-    def _load_lines(self, path: str | None, *, label: str) -> list[str]:
-        file_path = self._validate_file(path, label=label)
+    def _load_lines(self, path: str) -> list[str]:
+        file_path = Path(path)
         return [
             line.strip()
             for line in file_path.read_text(encoding="utf-8").splitlines()
             if line.strip()
         ]
-
-    def _validate_file(self, path: str | None, *, label: str) -> Path:
-        if not path:
-            raise ValueError(f"{label} must be set.")
-
-        file_path = Path(path)
-        if not file_path.is_file():
-            raise FileNotFoundError(f"{label} not found: {file_path}")
-
-        return file_path
-
-    def _validate_paths(self) -> None:
-        if self._config.enable_tfidf:
-            self._validate_file(self._config.phrases_path, label="phrases_path")
-        if self._config.enable_rag:
-            self._validate_file(self._config.sentences_path, label="sentences_path")
