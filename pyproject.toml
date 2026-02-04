@@ -1,6 +1,6 @@
 [project]
 name = "prompt-firewall"
-version = "0.1.1"
+version = "0.1.4"
 description = "Prompt guard library for composing multiple safety checks."
 readme = "README.md"
 requires-python = ">=3.13"
@@ -18,3 +18,10 @@ dev = [
 
 [tool.mypy]
 disable_error_code = ["import-untyped"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.package-data]
+prompt_guard = ["data/*.txt"]

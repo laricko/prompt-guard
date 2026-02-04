@@ -1,10 +1,14 @@
 from dataclasses import dataclass
 
 
+DEFAULT_PHRASES_RESOURCE = "data/phrases.txt"
+DEFAULT_SENTENCES_RESOURCE = "data/sentences.txt"
+
+
 @dataclass(slots=True)
 class PromptGuardConfig:
-    phrases_path: str | None = "phrases.txt"
-    sentences_path: str | None = "sentences.txt"
+    phrases_path: str | None = None
+    sentences_path: str | None = None
 
     tfidf_top_k: int = 5
     tfidf_ngram_range: tuple[int, int] = (1, 3)

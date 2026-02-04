@@ -1,10 +1,15 @@
+from importlib import resources
 from pathlib import Path
 
 from llama_index.core import Document, VectorStoreIndex
 from llama_index.embeddings.ollama import OllamaEmbedding
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from .config import PromptGuardConfig
+from .config import (
+    DEFAULT_PHRASES_RESOURCE,
+    DEFAULT_SENTENCES_RESOURCE,
+    PromptGuardConfig,
+)
 from .guards.judge_guard import LlmJudgeGuard
 from .guards.rag_guard import RagGuard
 from .guards.tfidf_guard import TfIdfGuard
@@ -36,7 +41,10 @@ class GuardPipeline:
         return guards
 
     def _build_tfidf_guard(self) -> TfIdfGuard:
-        phrases = self._load_lines(self._config.phrases_path)
+        phrases = self._load_lines(
+            self._config.phrases_path,
+            default_resource=DEFAULT_PHRASES_RESOURCE,
+        )
         vectorizer = TfidfVectorizer(ngram_range=self._config.tfidf_ngram_range)
         phrase_matrix = vectorizer.fit_transform(phrases)
         return TfIdfGuard(
@@ -47,7 +55,10 @@ class GuardPipeline:
         )
 
     def _build_rag_guard(self) -> RagGuard:
-        lines = self._load_lines(self._config.sentences_path)
+        lines = self._load_lines(
+            self._config.sentences_path,
+            default_resource=DEFAULT_SENTENCES_RESOURCE,
+        )
         docs = [Document(text=line) for line in lines]
         embed_kwargs = {"model_name": self._config.embed_model_name}
         if self._config.base_url:
@@ -65,10 +76,13 @@ class GuardPipeline:
             base_url=self._config.base_url,
         )
 
-    def _load_lines(self, path: str) -> list[str]:
-        file_path = Path(path)
-        return [
-            line.strip()
-            for line in file_path.read_text(encoding="utf-8").splitlines()
-            if line.strip()
-        ]
+    def _load_lines(self, path: str | None, *, default_resource: str) -> list[str]:
+        if path:
+            text = Path(path).read_text(encoding="utf-8")
+        else:
+            text = self._load_packaged_text(default_resource)
+        return [line.strip() for line in text.splitlines() if line.strip()]
+
+    def _load_packaged_text(self, filename: str) -> str:
+        resource_path = resources.files("prompt_guard").joinpath(filename)
+        return resource_path.read_text(encoding="utf-8")
