@@ -52,6 +52,4 @@ class RagGuard:
             text = item.node.get_content()
             matches.append(RagMatch(text=text, score=score))
 
-        matches.sort(key=lambda x: (-x.score, x.text))
-
         return matches[: self._top_k]

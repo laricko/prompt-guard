@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-from rag_guard import RagGuard
-from tf_idf_guard import TfIdfGuard
+from l1_rag_guard import RagGuard
+from l0_tf_idf_guard import TfIdfGuard
 
 app = FastAPI()
 
