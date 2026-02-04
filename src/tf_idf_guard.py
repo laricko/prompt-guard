@@ -1,34 +1,25 @@
 from pathlib import Path
 
-import yaml
 from pydantic import BaseModel
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from protocols import GuardResult, PhraseSchema
+from protocols import GuardResult
 
 
 class TfIdfMatch(BaseModel):
-    category: str
     phrase: str
     score: float
 
 
 class TfIdfGuard:
     def __init__(self, phrase_db: str, *, top_k: int = 5) -> None:
-        data: PhraseSchema = yaml.safe_load(Path(phrase_db).read_text(encoding="utf-8"))
-
+        raw_lines = Path(phrase_db).read_text(encoding="utf-8").splitlines()
+        self._phrases = [line.strip() for line in raw_lines if line.strip()]
         self._top_k = top_k
-        self._meta: list[tuple[str, str]] = []
-        phrases: list[str] = []
-
-        for category, items in data.items():
-            for phrase in items:
-                phrases.append(phrase)
-                self._meta.append((category, phrase))
 
         self._vectorizer = TfidfVectorizer(ngram_range=(1, 3))
-        self._phrase_matrix = self._vectorizer.fit_transform(phrases)
+        self._phrase_matrix = self._vectorizer.fit_transform(self._phrases)
 
     async def check(self, prompt: str) -> GuardResult[list[TfIdfMatch]]:
         vec = self._vectorizer.transform([prompt])
@@ -50,10 +41,9 @@ class TfIdfGuard:
             if score <= 0.0:
                 continue
 
-            category, phrase = self._meta[idx]
+            phrase = self._phrases[idx]
             matches.append(
                 TfIdfMatch(
-                    category=category,
                     phrase=phrase,
                     score=score,
                 )
