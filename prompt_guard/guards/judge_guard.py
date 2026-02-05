@@ -9,7 +9,7 @@ class LlmJudgeGuard:
     def __init__(
         self,
         *,
-        model_name: str = "smollm2",
+        model_name: str = "smollm2", # NOTE: smoll2 for debugging.
         temperature: float = 0.0,
         max_tokens: int = 256,
         base_url: str | None = None,
@@ -28,7 +28,7 @@ class LlmJudgeGuard:
         evidence = self._parse_response(response.text)
         score = evidence.score
 
-        return GuardResult(score=score, evidence=[evidence])
+        return GuardResult(score=score, evidence=[evidence], kind="judge")
 
     def _build_prompt(self, prompt: str) -> str:
         return (
@@ -44,7 +44,6 @@ class LlmJudgeGuard:
         try:
             data = json.loads(text)
             return GuardEvidence(
-                kind="judge",
                 score=float(data["score"]),
                 detail=str(data["rationale"]),
             )
@@ -52,4 +51,4 @@ class LlmJudgeGuard:
             pass
 
         fallback = text.strip() or "Unparseable model response."
-        return GuardEvidence(kind="judge", score=0.0, detail=fallback[:200])
+        return GuardEvidence(score=0.0, detail=fallback[:200])

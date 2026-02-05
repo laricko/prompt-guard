@@ -26,7 +26,7 @@ class TfIdfGuard:
         matches = self._build_matches(sims)
         score = max(sims, default=0.0)
 
-        return GuardResult(score=score, evidence=matches)
+        return GuardResult(score=score, evidence=matches, kind="tfidf")
 
     def _build_matches(self, sims) -> list[GuardEvidence]:
         indexed_scores = list(enumerate(sims))
@@ -41,7 +41,7 @@ class TfIdfGuard:
 
             phrase = self._phrases[idx]
             matches.append(
-                GuardEvidence(kind="tfidf", score=score, detail=phrase)
+                GuardEvidence(score=score, detail=phrase)
             )
 
         return matches

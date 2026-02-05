@@ -19,7 +19,7 @@ class RagGuard:
         matches = self._build_matches(nodes)
         score = matches[0].score if matches else 0.0
 
-        return GuardResult(score=score, evidence=matches)
+        return GuardResult(score=score, evidence=matches, kind="rag")
 
     def _build_matches(self, nodes) -> list[GuardEvidence]:
         matches: list[GuardEvidence] = []
@@ -30,6 +30,6 @@ class RagGuard:
                 continue
 
             text = item.node.get_content()
-            matches.append(GuardEvidence(kind="rag", score=score, detail=text))
+            matches.append(GuardEvidence(score=score, detail=text))
 
         return matches[: self._top_k]

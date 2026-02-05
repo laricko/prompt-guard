@@ -6,12 +6,12 @@ type PhraseSchema = dict[str, list[str]]
 
 
 class GuardEvidence(BaseModel):
-    kind: Literal["tfidf", "rag", "judge"]
     score: float
     detail: str
 
 
 class GuardResult(BaseModel):
+    kind: Literal["tfidf", "rag", "judge"]
     score: float
     evidence: list[GuardEvidence]
 
