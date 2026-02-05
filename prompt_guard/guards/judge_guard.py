@@ -2,7 +2,7 @@ import json
 
 from llama_index.llms.ollama import Ollama
 
-from ..protocols import GuardEvidence, GuardResult
+from prompt_guard.protocols import GuardEvidence, GuardResult
 
 
 class LlmJudgeGuard:

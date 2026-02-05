@@ -5,15 +5,15 @@ from llama_index.core import Document, VectorStoreIndex
 from llama_index.embeddings.ollama import OllamaEmbedding
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from .config import (
+from prompt_guard.config import (
     BUILTIN_DEFAULT_PHRASES_RESOURCE,
     BUILTIN_DEFAULT_SENTENCES_RESOURCE,
     PromptGuardConfig,
 )
-from .guards.judge_guard import LlmJudgeGuard
-from .guards.rag_guard import RagGuard
-from .guards.tfidf_guard import TfIdfGuard
-from .protocols import Guard
+from prompt_guard.guards.judge_guard import LlmJudgeGuard
+from prompt_guard.guards.rag_guard import RagGuard
+from prompt_guard.guards.tfidf_guard import TfIdfGuard
+from prompt_guard.protocols import Guard
 
 
 class GuardPipeline:

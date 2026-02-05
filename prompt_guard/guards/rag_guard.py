@@ -1,6 +1,6 @@
 from llama_index.core.retrievers import BaseRetriever
 
-from ..protocols import GuardEvidence, GuardResult
+from prompt_guard.protocols import GuardEvidence, GuardResult
 
 
 class RagGuard:
